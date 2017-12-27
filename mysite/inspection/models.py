@@ -32,10 +32,10 @@ class Device(models.Model):
 
 class Event(models.Model):
     EventDate = models.DateTimeField(auto_now_add=True)
-    description = models.TextField()
-    imageOne = models.ImageField()
-    imageTwo = models.ImageField()
-    imageThree = models.ImageField()
+    description = models.TextField(blank=True)
+    imageOne = models.ImageField(upload_to='uploads/',blank=True)
+    imageTwo = models.ImageField(upload_to='uploads/',blank=True)
+    imageThree = models.ImageField(upload_to='uploads/',blank=True)
     Device = models.ForeignKey(Device,on_delete=models.CASCADE)
     def __str__(self):
         return self.description
