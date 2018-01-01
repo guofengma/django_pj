@@ -32,7 +32,10 @@ class Device(models.Model):
 
 class Event(models.Model):
     EventDate = models.DateTimeField(auto_now_add=True)
+    model = models.CharField(max_length=100,blank=True)
+    rackPostion = models.CharField(max_length=10,blank=True)
     description = models.TextField(blank=True)
+    reportUserInfo = models.CharField(max_length=100,blank=True)
     imageOne = models.ImageField(upload_to='uploads/',blank=True)
     imageTwo = models.ImageField(upload_to='uploads/',blank=True)
     imageThree = models.ImageField(upload_to='uploads/',blank=True)

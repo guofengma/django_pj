@@ -16,4 +16,4 @@ class DeviceSerializer(serializers.ModelSerializer):
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        fields = ('id','EventDate','description','Device','imageOne','imageTwo','imageThree')
+        fields = ('id','EventDate','reportUserInfo', 'model','rackPostion','description','Device','imageOne','imageTwo','imageThree')

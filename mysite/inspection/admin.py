@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import *
 
 class EventAdmin(admin.ModelAdmin):
-    list_display=('id', 'EventDate', 'Device','description', 'imageOne')
+    list_display=('id', 'EventDate','reportUserInfo', 'Device','model','rackPostion','description', 'imageOne')
 # Register your models here.
 
 admin.site.register(IDCPostion)
