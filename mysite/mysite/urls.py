@@ -19,7 +19,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    url(r'^polls/', include('polls.urls')),
+    # url(r'^polls/', include('polls.urls')),
     url(r'^inspection/', include('inspection.urls')),
     url(r'^admin/', admin.site.urls),
 ]
