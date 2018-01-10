@@ -42,3 +42,5 @@ class Event(models.Model):
     Device = models.ForeignKey(Device,on_delete=models.CASCADE)
     def __str__(self):
         return self.description
+
+
