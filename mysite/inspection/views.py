@@ -1,7 +1,7 @@
 from django.shortcuts import render
-
+#-*-coding:utf-8 -*-
 # Create your views here.
-# -*- coding:utf-8 -*-
+
 import logging
 logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')
 
@@ -15,9 +15,10 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 from .models import Device,Event
+
 from .serializers import DeviceSerializer,IDCPostionSerializer,EventSerializer
 
-# 发邮件
+
 from email import encoders
 from email.header import Header
 from email.mime.multipart import MIMEMultipart
