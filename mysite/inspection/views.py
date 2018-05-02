@@ -1,6 +1,7 @@
-from django.shortcuts import render
-#-*-coding:utf-8 -*-
+# -*- coding: utf-8 -*-
 # Create your views here.
+from django.shortcuts import render
+
 
 import logging
 logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')
@@ -104,8 +105,8 @@ def postEvent(request,pk):
             msg.attach(MIMEText(msgStr, 'html', 'utf-8'))
 
             #如果有图片就加图片
-            logging.debug(event.imageOne)
-            logging.debug(event.imageTwo)
+            # logging.debug(event.imageOne)
+            # logging.debug(event.imageTwo)
             if event.imageOne :
                 with event.imageOne.open() as image:
                     img = MIMEImage(image.read())
@@ -121,6 +122,8 @@ def postEvent(request,pk):
             server.sendmail(from_addr, to_addr, msg.as_string())
             server.quit()
 
+        def SendWarningWeiXin(event):
+            pass
 
         if pk == '':
             serializer = EventSerializer(data=request.data)

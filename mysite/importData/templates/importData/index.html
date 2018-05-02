@@ -1,0 +1,59 @@
+
+
+
+{% if message %}<p><strong>{{ message }}</strong></p>{% endif %}
+
+<!--<form enctype="multipart/form-data" action="{% url 'importData:dataAction' %}" method="post">-->
+<!--{% csrf_token %}-->
+<!--{% for IDCPostion in IDCPostionlist %}-->
+    <!--<input type="radio" name="IDCPostionChoice" id="IDCPostionChoice{{ forloop.counter }}" value="{{ IDCPostion.id }}" />-->
+    <!--<label for="IDCPostionChoice{{ forloop.counter }}">{{ IDCPostion.IDCPostionName }}</label><br />-->
+<!--{% endfor %}-->
+
+
+<!--{% for userAdmin in userAdminlist %}-->
+    <!--<input type="checkbox" name="userAdminChoice" id="userAdminChoice{{ forloop.counter }}" value="{{ userAdmin.id }}" />-->
+    <!--<label for="userAdminChoice{{ forloop.counter }}">{{ userAdmin.Name }}</label><br />-->
+<!--{% endfor %}-->
+
+    <!--<input type="file" name="dataFile" />-->
+
+
+<!--<input type="submit" value="Vote" />-->
+<!--</form>-->
+<form action="{% url 'importData:logout' %}" method=post>{% csrf_token %}
+    <input type="submit" value="logout">
+</form>
+
+<form enctype="multipart/form-data" action="{% url 'importData:dataAction' %}" method=post>{% csrf_token %}
+    <table>{{ form }}</table><br>
+    <input type="submit" value="上传数据">
+</form>
+
+<form enctype="multipart/form-data" action="{% url 'importData:dataActionPlus' %}" method=post>{% csrf_token %}
+    <table>{{ formPlus }}</table><br>
+    <input type="submit" value="加强版上传数据">
+</form>
+
+{% if IDCPostionlist %}
+    <h1>IDCPostionList</h1>
+    <ul>
+    {% for IDCPostion in IDCPostionlist %}
+        <li><a href="{% url 'importData:IDCPostionDetail' IDCPostion.id %}">{{ IDCPostion.IDCPostionName }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No IDCPostion are available.</p>
+{% endif %}
+
+
+{% if userAdminlist %}
+    <h1>userAdminList</h1>
+    <ul>
+    {% for userAdmin in userAdminlist %}
+        <li><a href="{% url 'importData:userAdminDetail' userAdmin.id %}">{{ userAdmin.Name }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No IDCPostion are available.</p>
+{% endif %}

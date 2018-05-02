@@ -32,6 +32,7 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     # 'polls.apps.PollsConfig',
+    'importData.apps.ImportdataConfig',
     'inspection.apps.InspectionConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -124,3 +125,9 @@ STATIC_URL = '/static/'
 MEDIA_ROOT = BASE_DIR
 
 MEDIA_URL = '/uploads/'
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+SESSION_SAVE_EVERY_REQUEST = True
+
+SESSION_COOKIE_AGE = 300
