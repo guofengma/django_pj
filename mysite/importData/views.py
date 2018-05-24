@@ -1,7 +1,7 @@
 from django.shortcuts import render
 import logging
 import re
-logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')
+
 # Create your views here.
 from django.http import HttpResponse,HttpResponseRedirect
 from inspection.models import IDCPostion,userAdmin,Device
@@ -13,6 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 import pandas as pd
 
+logger = logging.getLogger('django')
 
 @login_required
 def index(request):
@@ -54,12 +55,15 @@ def logout_view(request):
 
 @login_required
 def dataAction(request):
+    sessionid = request.COOKIES.get("sessionid")
+    logger.info(sessionid+"#####导入数据（3列的那种）#######")
     message = ''
     try:
         # 第一次检验数据，检验数据大小，检验文件后缀名
-        # logging.debug(request.FILES['dataFile'].size)
-        # logging.debug(request.FILES['dataFile'].name,type(request.FILES['dataFile'].name))
-        # logging.debug(re.match(r'\w+\.xls$',request.FILES['dataFile'].name) == None)
+        # logger.debug(request.FILES['dataFile'].size)
+        # logger.debug(request.FILES['dataFile'].name,type(request.FILES['dataFile'].name))
+        # logger.debug(re.match(r'\w+\.xls$',request.FILES['dataFile'].name) == None)
+        logger.info(sessionid+"#####上传文件名：{filename}######".format(filename=request.FILES['dataFile'].name))
         if request.FILES['dataFile'].size > 500000:
             message = "文件大小需要小于500K"
             raise Exception(message)
@@ -71,11 +75,12 @@ def dataAction(request):
             dataPost = form.save(commit=False)
             dataPost.updataUser = request.user
             dataPost.save()
-            # logging.debug(dataPost)
+            logger.info(sessionid+"#####上传者:{updataUser}#####".format(updataUser=dataPost.updataUser))
+            # logger.debug(dataPost)
             try:
                 data = pd.read_excel(dataPost.dataFile)
             except Exception as e:
-                logging.debug('Error:', e)
+                # logger.debug('Error:', e)
                 message = 'excel无法打开，数据文件格式错误'
                 raise Exception(message)
             # 第二次检验数据，是不是3列，列的名称对不对，是否包含空置
@@ -88,34 +93,41 @@ def dataAction(request):
         if True in data.isnull().values:
             message = '上传数据中不能包含空置！请检查！'
             raise Exception(message)
+        logger.info(sessionid+"#####数据校验通过#######")
         for i in range(data.shape[0]):
             d = Device(serialNumber=data['serialNumber'][i], model=data['model'][i], rackPostion=data['rackPostion'][i],
                     IDCPostion=dataPost.IDCPostion)
             d.save()
             d.userAdmins.clear()
             d.userAdmins.add(*dataPost.userAdmins.all())
-            logging.debug(i)
+            # logger.debug(i)
+        logger.info(sessionid+"#####数据导入成功#######")
+
         message = '数据导入成功'
     except  Exception as e:
-        logging.debug(e)
-        logging.debug(message)
+        logger.error(sessionid+"#####数据导入失败#######")
+        logger.error(message)
     finally:
         if not message:
             message = '未知错误'
+            logger.error(sessionid+"#####未知错误#######")
         url = reverse('importData:index') + '?' + 'message=' + message
-        logging.debug(url)
+        # logger.debug(url)
         return HttpResponseRedirect(url)
 
 @login_required
 def dataActionPlus(request):
-    # logging.debug(request.user.username)
+    sessionid = request.COOKIES.get("sessionid")
+    # logger.debug(request.user.username)
+    logger.info(sessionid+"#####导入数据（5列的那种）#######")
     message = ''
     try:
         # 第一次检验数据，检验数据大小，检验文件后缀名
-        logging.debug('#'*50)
-        # logging.debug(request)
-        # logging.debug(request.FILES['dataFile'])
-        # logging.debug(re.match(r'\w+\.xls$',request.FILES['dataFile'].name) == None)
+        # logger.debug('#'*50)
+        # logger.debug(request)
+        # logger.debug(request.FILES['dataFile'])
+        # logger.debug(re.match(r'\w+\.xls$',request.FILES['dataFile'].name) == None)
+        logger.info(sessionid+"#####上传文件名：{filename}######".format(filename=request.FILES['dataFile'].name))
         if request.FILES['dataFile'].size > 500000:
             message = "文件大小需要小于500K"
             raise Exception(message)
@@ -126,22 +138,23 @@ def dataActionPlus(request):
         if form.is_valid():
             dataPostPlus = form.save(commit=False)
             dataPostPlus.updataUser = request.user
-            # logging.debug(dataPostPlus.updataUser)
+            # logger.debug(dataPostPlus.updataUser)
             dataPostPlus.save()
-            # logging.debug('dataPostPlus',dataPostPlus)
-            # logging.debug(form)
+            # logger.debug('dataPostPlus',dataPostPlus)
+            # logger.debug(form)
+            logger.info(sessionid+"#####上传者:{updataUser}#####".format(updataUser=dataPostPlus.updataUser))
             try:
                 data = pd.read_excel(dataPostPlus.dataFile)
-                logging.debug(data)
+                # logger.debug(data)
             except Exception as e:
-                # logging.debug('Error:', e)
+                # logger.debug('Error:', e)
                 message = 'excel无法打开，数据文件格式错误'
                 raise Exception(message)
                 # 第二次检验数据，是不是3列，列的名称对不对，是否包含空置
         if data.shape[1] != 5:
             message = '导入数据不为5列，格式错误，请参照数据样例！'
             raise Exception(message)
-        # logging.debug(data.columns)
+        # logger.debug(data.columns)
         if not (data.columns[0] == 'serialNumber' and data.columns[1] == 'model' and data.columns[2] == 'rackPostion'
                 and data.columns[3] == 'IdcPostions' and data.columns[4] == 'UserAdmins'):
             message = '5列必须为“serialNumber，model，rackPostion，IdcPostions，UserAdmins”，格式错误，请参照数据样例！'
@@ -149,29 +162,27 @@ def dataActionPlus(request):
         if True in data.isnull().values:
             message = '上传数据中不能包含空置！请检查！'
             raise Exception(message)
-        logging.debug('数据导入地方了')
+        logger.info(sessionid+"#####数据校验通过#######")
         for i in range(data.shape[0]):
-            # logging.debug('进入循环了')
-            # logging.debug(data['serialNumber'][i])
-            # logging.debug('serialNumber',data['serialNumber'][i], 'model',data['model'][i], 'rackPostion',data['rackPostion'][i])
-            # logging.debug('IDCPostion',IDCPostion.objects.get(id=data['IdcPostions'][i]))
             d = Device(serialNumber=data['serialNumber'][i], model=data['model'][i], rackPostion=data['rackPostion'][i],
                        IDCPostion=IDCPostion.objects.get(id=data['IdcPostions'][i]))
             d.save()
             d.userAdmins.clear()
             userAdminsQuerySet =  userAdmin.objects.filter(id__in=data['UserAdmins'][i].split(';'))
-            # logging.debug(userAdminsQuerySet)
+            # logger.debug(userAdminsQuerySet)
             d.userAdmins.add(*userAdminsQuerySet)
-            logging.debug(i)
+            # logger.debug(i)
         message = '数据导入成功'
+        logger.info(sessionid+"#####数据导入成功#######")
     except  Exception as e:
-        logging.debug(e)
-        logging.debug(message)
+        logger.error(sessionid+"#####数据导入失败#######")
+        logger.error(message)
     finally:
         if not message:
             message = '未知错误'
+            logger.error(sessionid+"#####未知错误#######")
         url = reverse('importData:index') + '?' + 'message=' + message
-        logging.debug(url)
+        # logger.debug(url)
         return HttpResponseRedirect(url)
 
 

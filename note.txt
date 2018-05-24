@@ -1,0 +1,15 @@
+Loggers
+四个级别在这里log levels 是个有名字的桶
+
+Handlers
+一种行为，例如写屏幕还是写文件
+
+from logger to handler
+
+Filters
+额外控制
+
+Formatters
+
+
+logging.getLogger(__name__) 这个名字是定义的Loggers  an instance of a logger
