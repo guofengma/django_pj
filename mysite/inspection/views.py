@@ -46,7 +46,8 @@ def index(request):
 @api_view(['GET'])
 @checkToken
 def getDevice(request,pk):
-    sessionid = request.COOKIES.get("sessionid")
+   # sessionid = request.COOKIES.get("sessionid")
+    sessionid = ' '
     logger.info(sessionid + "#####扫码请求数据#######")
     if request.method == "GET":
         logger.info(sessionid + "#####设备ID：{id}#######".format(id=pk))
@@ -72,7 +73,8 @@ def getDevice(request,pk):
 @api_view(['POST'])
 @checkToken
 def postEvent(request,pk):
-    sessionid = request.COOKIES.get("sessionid")
+    #sessionid = request.COOKIES.get("sessionid")
+    sessionid = ' '
     logger.info(sessionid + "#####生成故障#######")
     if request.method == "POST":
         def SendWarningMail(event):

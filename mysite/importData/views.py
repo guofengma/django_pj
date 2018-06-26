@@ -62,12 +62,12 @@ def dataAction(request):
         # 第一次检验数据，检验数据大小，检验文件后缀名
         # logger.debug(request.FILES['dataFile'].size)
         # logger.debug(request.FILES['dataFile'].name,type(request.FILES['dataFile'].name))
-        # logger.debug(re.match(r'\w+\.xls$',request.FILES['dataFile'].name) == None)
+        # logger.debug(re.match(r'.+\.xls$',request.FILES['dataFile'].name) == None)
         logger.info(sessionid+"#####上传文件名：{filename}######".format(filename=request.FILES['dataFile'].name))
         if request.FILES['dataFile'].size > 500000:
             message = "文件大小需要小于500K"
             raise Exception(message)
-        if re.match(r'\w+\.xls$',request.FILES['dataFile'].name) == None:
+        if re.match(r'.+\.xls$',request.FILES['dataFile'].name) == None:
             message = "文件必须是xls，文件格式无效"
             raise Exception(message)
         form = DataPostForm(request.POST, request.FILES)
@@ -75,12 +75,14 @@ def dataAction(request):
             dataPost = form.save(commit=False)
             dataPost.updataUser = request.user
             dataPost.save()
+            dataPost.userAdmins.add(*userAdmin.objects.filter(id__in=request.POST['userAdmins']))
             logger.info(sessionid+"#####上传者:{updataUser}#####".format(updataUser=dataPost.updataUser))
             # logger.debug(dataPost)
+            logger.info(dataPost.dataFile)
             try:
                 data = pd.read_excel(dataPost.dataFile)
             except Exception as e:
-                # logger.debug('Error:', e)
+                logger.info('Error:', e)
                 message = 'excel无法打开，数据文件格式错误'
                 raise Exception(message)
             # 第二次检验数据，是不是3列，列的名称对不对，是否包含空置
@@ -100,7 +102,6 @@ def dataAction(request):
             d.save()
             d.userAdmins.clear()
             d.userAdmins.add(*dataPost.userAdmins.all())
-            # logger.debug(i)
         logger.info(sessionid+"#####数据导入成功#######")
 
         message = '数据导入成功'
@@ -126,12 +127,12 @@ def dataActionPlus(request):
         # logger.debug('#'*50)
         # logger.debug(request)
         # logger.debug(request.FILES['dataFile'])
-        # logger.debug(re.match(r'\w+\.xls$',request.FILES['dataFile'].name) == None)
+        # logger.debug(re.match(r'.+\.xls$',request.FILES['dataFile'].name) == None)
         logger.info(sessionid+"#####上传文件名：{filename}######".format(filename=request.FILES['dataFile'].name))
         if request.FILES['dataFile'].size > 500000:
             message = "文件大小需要小于500K"
             raise Exception(message)
-        if re.match(r'\w+\.xls$', request.FILES['dataFile'].name) == None:
+        if re.match(r'.+\.xls$', request.FILES['dataFile'].name) == None:
             message = "文件必须是xls，文件格式无效"
             raise Exception(message)
         form = DataPostFormPlus(request.POST, request.FILES)
@@ -168,7 +169,7 @@ def dataActionPlus(request):
                        IDCPostion=IDCPostion.objects.get(id=data['IdcPostions'][i]))
             d.save()
             d.userAdmins.clear()
-            userAdminsQuerySet =  userAdmin.objects.filter(id__in=data['UserAdmins'][i].split(';'))
+            userAdminsQuerySet =  userAdmin.objects.filter(id__in=str(data['UserAdmins'][i]).split(';'))
             # logger.debug(userAdminsQuerySet)
             d.userAdmins.add(*userAdminsQuerySet)
             # logger.debug(i)
@@ -177,6 +178,7 @@ def dataActionPlus(request):
     except  Exception as e:
         logger.error(sessionid+"#####数据导入失败#######")
         logger.error(message)
+        logger.error(e)
     finally:
         if not message:
             message = '未知错误'
